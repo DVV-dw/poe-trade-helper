@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Poe Trade Helper</title>
+  <link rel="stylesheet" href="sidepanel.css">
+</head>
+<body>
+  <div class="app" id="app">
+
+    <!-- ── TOP HEADER ── -->
+    <header class="top-header">
+      <div class="logo">
+        <svg viewBox="0 0 28 28" width="22" height="22">
+          <defs>
+            <radialGradient id="lg" cx="38%" cy="32%" r="65%">
+              <stop offset="0%" stop-color="#f5e090"/>
+              <stop offset="55%" stop-color="#d4a830"/>
+              <stop offset="100%" stop-color="#5a3a06"/>
+            </radialGradient>
+          </defs>
+          <polygon points="14,2 25,8 25,20 14,26 3,20 3,8" fill="url(#lg)" stroke="#e8c050" stroke-width="0.8"/>
+          <circle cx="14" cy="14" r="3.5" fill="#fff8d0" opacity="0.75"/>
+        </svg>
+      </div>
+      <div class="header-tabs">
+        <button class="htab active" data-tab="bookmarks">Bookmarks</button>
+        <button class="htab" data-tab="builds">Builds</button>
+        <button class="htab" data-tab="history">History</button>
+        <button class="htab" data-tab="tools">Tools</button>
+      </div>
+      <button class="icon-btn htab" data-tab="settings" id="settingsBtn" title="Settings">⚙</button>
+      <button class="icon-btn collapse-btn" id="collapseBtn" title="Hide panel">&#9664;</button>
+    </header>
+
+    <!-- ══════════════════════════════════════ -->
+    <!--  TAB: BOOKMARKS                       -->
+    <!-- ══════════════════════════════════════ -->
+    <div class="tab-content active" id="tab-bookmarks">
+
+      <div class="bm-add-bar">
+        <button class="gold-btn wide" id="bmAddFolderBtn">＋ New Folder</button>
+        <button class="gold-btn wide" id="bmCaptureBtn">📌 Save Search</button>
+      </div>
+
+      <div class="backup-bar">
+        <span class="sec-title">Backup</span>
+        <div class="backup-btns">
+          <button class="sm-btn" id="exportCodeBtn">⬆ Copy Code</button>
+          <button class="sm-btn" id="importCodeBtn">⬇ Import Code</button>
+        </div>
+      </div>
+
+      <div id="bookmarkFolders" class="bm-folders"></div>
+      <div class="no-saves hidden" id="noBookmarks">No bookmarks yet — save a search above!</div>
+
+    </div>
+
+    <!-- ══════════════════════════════════════ -->
+    <!--  TAB: BUILDS                          -->
+    <!-- ══════════════════════════════════════ -->
+    <div class="tab-content hidden" id="tab-builds">
+
+      <div class="import-bar">
+        <input id="buildInput" class="build-input" type="text"
+          placeholder="https://pobb.in/... or raw PoB code"
+          autocomplete="off" spellcheck="false"/>
+        <button class="gold-btn" id="importBtn">Import</button>
+      </div>
+
+      <div class="status-row hidden" id="statusRow">
+        <span class="spinner"></span>
+        <span id="statusText">Loading...</span>
+      </div>
+      <div class="error-row hidden" id="errorRow">
+        <span class="err-icon">⚠</span>
+        <span id="errorText"></span>
+      </div>
+
+      <div class="hidden" id="buildPanel">
+        <div class="build-header">
+          <div class="build-tags" id="buildTags"></div>
+          <div class="build-actions">
+            <button class="sm-btn" id="saveBuildBtn">💾 Save</button>
+            <button class="sm-btn danger" id="clearBuildBtn">✕ Clear</button>
+          </div>
+        </div>
+        <div class="items-wrap" id="itemsWrap"></div>
+      </div>
+
+      <div class="saved-section" id="savedProfiles">
+        <div class="saved-header">
+          <span class="sec-title" id="profilesTitle">Saved Profiles</span>
+        </div>
+        <div id="profilesList" class="profiles-list"></div>
+        <div class="no-saves hidden" id="noProfiles">
+          No profiles yet.<br>
+          <span style="font-size:0.85em;opacity:0.7;">Paste a pobb.in URL above → Import → 💾 Save</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ══════════════════════════════════════ -->
+    <!--  TAB: HISTORY                         -->
+    <!-- ══════════════════════════════════════ -->
+    <div class="tab-content hidden" id="tab-history">
+      <div class="history-header">
+        <span class="sec-title">Search History</span>
+        <button class="sm-btn danger" id="clearHistoryBtn">Clear All</button>
+      </div>
+      <div id="historyList" class="history-list"></div>
+      <div class="no-saves hidden" id="noHistory">No history yet</div>
+    </div>
+
+    <!-- ══════════════════════════════════════ -->
+    <!--  TAB: TOOLS                           -->
+    <!-- ══════════════════════════════════════ -->
+    <div class="tab-content hidden" id="tab-tools">
+
+      <!-- Whisper Queue -->
+      <div class="tool-section">
+        <div class="tool-header">
+          <span class="sec-title">Whisper Queue</span>
+          <button class="sm-btn danger" id="clearWhispersBtn">Clear</button>
+        </div>
+        <div id="whisperList" class="whisper-list"></div>
+        <div class="no-saves hidden" id="noWhispers">No whispers tracked yet — click whisper on trade to track</div>
+      </div>
+
+      <!-- Chaos/Divine Ratio -->
+      <div class="tool-section">
+        <div class="tool-header"><span class="sec-title">Chaos ÷ Divine Ratio</span></div>
+        <div class="tool-row">
+          <input id="ratioInput" class="tool-input" type="number" step="any" placeholder="e.g. 150"/>
+          <button class="sm-btn" id="ratioSetBtn">Set</button>
+          <button class="sm-btn" id="ratioAutoBtn">Auto</button>
+        </div>
+        <div class="tool-hint" id="ratioDisplay">Current: not set</div>
+      </div>
+
+      <!-- Profit Calculator -->
+      <div class="tool-section">
+        <div class="tool-header"><span class="sec-title">Profit Calculator</span></div>
+        <div class="tool-row">
+          <input id="profitBuy" class="tool-input" type="number" step="any" placeholder="Buy"/>
+          <input id="profitSell" class="tool-input" type="number" step="any" placeholder="Sell"/>
+          <input id="profitQty" class="tool-input sm" type="number" step="1" value="1" placeholder="Qty"/>
+        </div>
+        <div class="tool-hint" id="profitResult">Enter buy/sell prices</div>
+      </div>
+
+      <!-- Regex Generator -->
+      <div class="tool-section">
+        <div class="tool-header"><span class="sec-title">Stash Regex Generator</span></div>
+        <div class="tool-row">
+          <input id="regexItemInput" class="tool-input wide" type="text" placeholder="Item name..."/>
+          <button class="sm-btn" id="regexGenBtn">Gen</button>
+        </div>
+        <div class="tool-output hidden" id="regexOutput"></div>
+      </div>
+
+      <!-- Gold Estimator (PoE2) -->
+      <div class="tool-section" id="goldEstSection">
+        <div class="tool-header"><span class="sec-title">Gold ↔ Currency (PoE2)</span></div>
+        <div class="tool-row">
+          <input id="goldAmount" class="tool-input" type="number" step="any" placeholder="Gold"/>
+          <span class="tool-sep">↔</span>
+          <input id="goldChaos" class="tool-input" type="number" step="any" placeholder="Chaos"/>
+        </div>
+        <div class="tool-row">
+          <label class="tool-label">Rate:</label>
+          <input id="goldRate" class="tool-input sm" type="number" step="any" placeholder="gold/c" value="100"/>
+        </div>
+      </div>
+
+      <!-- Attribute Checker -->
+      <div class="tool-section">
+        <div class="tool-header"><span class="sec-title">Attribute Checker</span></div>
+        <div class="tool-row">
+          <label class="tool-label">Str</label><input id="attrStr" class="tool-input sm" type="number" value="0"/>
+          <label class="tool-label">Dex</label><input id="attrDex" class="tool-input sm" type="number" value="0"/>
+          <label class="tool-label">Int</label><input id="attrInt" class="tool-input sm" type="number" value="0"/>
+        </div>
+        <button class="sm-btn wide" id="attrCheckBtn">Check Build Requirements</button>
+        <div class="tool-hint" id="attrResult"></div>
+      </div>
+
+      <!-- JSON Export -->
+      <div class="tool-section">
+        <div class="tool-header"><span class="sec-title">Export</span></div>
+        <button class="gold-btn wide" id="jsonExportBtn">⬇ Export Search Results as JSON</button>
+        <div class="tool-hint">Exports visible trade results from active tab</div>
+      </div>
+
+    </div>
+
+    <!-- ══════════════════════════════════════ -->
+    <!--  TAB: SETTINGS                       -->
+    <!-- ══════════════════════════════════════ -->
+    <div class="tab-content hidden" id="tab-settings">
+      <div class="settings-section">
+
+        <div class="settings-group">
+          <div class="settings-title">General Text Size</div>
+          <div class="settings-row">
+            <label class="settings-label" for="fontSizeSlider">All Text</label>
+            <span class="settings-value" id="fontSizeLabel">22px</span>
+          </div>
+          <input id="fontSizeSlider" class="settings-slider" type="range" min="12" max="36" step="1" value="22"/>
+          <div class="settings-hint">Scales all text in the panel</div>
+        </div>
+
+        <div class="settings-group">
+          <div class="settings-title">Panel</div>
+          <button class="sm-btn" id="reloadPanelBtn">↺ Reload Panel</button>
+          <div class="settings-hint">Fix unresponsive buttons — reloads panel without touching the page</div>
+        </div>
+
+        <div class="settings-group">
+          <div class="settings-title">Discord Webhook</div>
+          <input id="webhookInput" class="modal-input" type="text" placeholder="https://discord.com/api/webhooks/..."/>
+          <div class="settings-row" style="margin-top:6px">
+            <button class="sm-btn" id="webhookSaveBtn">Save</button>
+            <button class="sm-btn" id="webhookTestBtn">Test</button>
+          </div>
+          <div class="settings-hint" id="webhookStatus">Send trade alerts to Discord</div>
+        </div>
+
+        <div class="settings-group">
+          <div class="settings-title">Alert Sound</div>
+          <div class="settings-row">
+            <button class="sm-btn" id="soundUploadBtn">Upload .mp3/.wav</button>
+            <button class="sm-btn" id="soundPreviewBtn">▶ Preview</button>
+            <button class="sm-btn danger" id="soundClearBtn">✕</button>
+            <input type="file" id="soundFileInput" accept=".mp3,.wav,.ogg" class="hidden"/>
+          </div>
+          <div class="settings-hint" id="soundStatus">Default browser notification</div>
+        </div>
+
+        <div class="settings-group">
+          <div class="settings-title">Negative Filter</div>
+          <textarea id="negFilterInput" class="modal-input" rows="3" placeholder="One keyword per line..."></textarea>
+          <button class="sm-btn" id="negFilterSaveBtn" style="margin-top:4px">Save Filters</button>
+          <div class="settings-hint">Hides listings matching these keywords in seller notes/names</div>
+        </div>
+
+        <div class="settings-group">
+          <div class="settings-title">Blacklisted Sellers</div>
+          <div class="settings-row">
+            <input id="blacklistInput" class="modal-input" type="text" placeholder="Account name..." style="flex:1"/>
+            <button class="sm-btn" id="blacklistAddBtn">+ Add</button>
+          </div>
+          <div id="blacklistItems" class="tag-list"></div>
+          <div class="settings-hint">Listings from blacklisted sellers are dimmed and flagged</div>
+        </div>
+
+        <div class="settings-group">
+          <div class="settings-title">Trusted Sellers</div>
+          <div class="settings-row">
+            <input id="trustedInput" class="modal-input" type="text" placeholder="Account name..." style="flex:1"/>
+            <button class="sm-btn" id="trustedAddBtn">+ Add</button>
+          </div>
+          <div id="trustedItems" class="tag-list"></div>
+          <div class="settings-hint">Trusted sellers get a green badge on listings</div>
+        </div>
+
+        <div class="settings-group">
+          <div class="settings-title">Multi-Tab Sync</div>
+          <div class="settings-row">
+            <label class="settings-label">Sync filters across tabs</label>
+            <input id="multiTabSync" type="checkbox"/>
+          </div>
+          <div class="settings-hint">Updating league/filters in one tab applies to all trade tabs</div>
+        </div>
+
+        <div class="settings-group">
+          <div class="settings-title">Bookmark Item Names</div>
+          <div class="settings-row">
+            <label class="settings-label" for="bmItemSizeSlider">Name Size</label>
+            <span class="settings-value" id="bmItemSizeLabel">12px</span>
+          </div>
+          <input id="bmItemSizeSlider" class="settings-slider" type="range" min="8" max="28" step="1" value="12"/>
+          <div class="settings-hint">Controls bookmark item name text only</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── MODALS ── -->
+
+    <div class="modal-overlay hidden" id="saveProfileModal">
+      <div class="modal">
+        <div class="modal-title">Save Build Profile</div>
+        <label class="modal-label">Profile Name</label>
+        <input id="profileNameInput" class="modal-input" type="text" placeholder="My Witch Fireball Build"/>
+        <label class="modal-label">pobb.in URL</label>
+        <input id="profileUrlInput" class="modal-input" type="text" readonly/>
+        <div class="modal-actions">
+          <button class="gold-btn" id="saveProfileConfirm">Save</button>
+          <button class="sm-btn" id="saveProfileCancel">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-overlay hidden" id="folderModal">
+      <div class="modal">
+        <div class="modal-title">New Folder</div>
+        <label class="modal-label">Folder Name</label>
+        <input id="folderNameInput" class="modal-input" type="text" placeholder="My Builds"/>
+        <div class="modal-actions">
+          <button class="gold-btn" id="folderConfirm">Create</button>
+          <button class="sm-btn" id="folderCancel">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-overlay hidden" id="bmModal">
+      <div class="modal">
+        <div class="modal-title">Save Bookmark</div>
+        <label class="modal-label">Name</label>
+        <input id="bmNameInput" class="modal-input" type="text" placeholder="Search name"/>
+        <label class="modal-label">URL</label>
+        <input id="bmUrlInput" class="modal-input" type="text" placeholder="https://www.pathofexile.com/trade/..."/>
+        <label class="modal-label">Folder</label>
+        <select id="bmFolderSelect" class="modal-input"></select>
+        <div class="modal-actions">
+          <button class="gold-btn" id="bmConfirm">Save</button>
+          <button class="sm-btn" id="bmCancel">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── IMPORT CODE MODAL ── -->
+    <div class="modal-overlay hidden" id="importCodeModal">
+      <div class="modal">
+        <div class="modal-title" id="importCodeModalTitle">Import Bookmarks</div>
+        <label class="modal-label">Paste backup code</label>
+        <textarea id="importCodeInput" class="modal-input" rows="5"
+          placeholder="3:eyJ..." style="resize:vertical;font-family:monospace;font-size:0.72em"></textarea>
+        <div class="error-row hidden" id="importCodeError">
+          <span class="err-icon">⚠</span><span id="importCodeErrTxt"></span>
+        </div>
+        <div class="modal-actions">
+          <button class="gold-btn" id="importCodeConfirm">Import</button>
+          <button class="sm-btn" id="importCodeCancel">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CONTEXT MENU ── -->
+    <div class="ctx-menu hidden" id="ctxMenu"></div>
+
+    <!-- ── GLOBAL TOAST ── -->
+    <div class="hidden" id="globalToast"
+      style="position:fixed;bottom:8px;left:50%;transform:translateX(-50%);
+             background:#5a1010;border:1px solid #aa2020;color:#ffaaaa;
+             padding:6px 14px;border-radius:6px;font-size:0.8em;z-index:9999;
+             white-space:nowrap;pointer-events:none"></div>
+
+    <!-- ── RENAME MODAL ── -->
+    <div class="modal-overlay hidden" id="renameModal">
+      <div class="modal">
+        <div class="modal-title" id="renameModalTitle">Edit Name</div>
+        <label class="modal-label">Name</label>
+        <input id="renameInput" class="modal-input" type="text"/>
+        <div class="modal-actions">
+          <button class="gold-btn" id="renameConfirm">Save</button>
+          <button class="sm-btn" id="renameCancel">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- .app -->
+
+  <script src="pob_parser.js"></script>
+  <script src="sidepanel.js"></script>
+</body>
+</html>

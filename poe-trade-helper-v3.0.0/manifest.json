@@ -1,0 +1,53 @@
+{
+  "manifest_version": 3,
+  "name": "PoE Trade Helper",
+  "version": "3.0.0",
+  "description": "PoE 1 & 2 trade side panel — import builds, bookmark searches, whisper tracking, Discord webhooks, price tools.",
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_title": "PoE Trade Helper",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png"
+    }
+  },
+  "permissions": [
+    "storage",
+    "tabs",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://www.pathofexile.com/*",
+    "https://pobb.in/*",
+    "https://poe.ninja/*",
+    "https://discord.com/api/*",
+    "https://discordapp.com/api/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.pathofexile.com/trade",
+        "https://www.pathofexile.com/trade/*",
+        "https://www.pathofexile.com/trade2",
+        "https://www.pathofexile.com/trade2/*"
+      ],
+      "js": ["content/trade_inject.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "background": {
+    "service_worker": "background/service_worker.js"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["icons/*", "sidepanel/*"],
+      "matches": ["https://www.pathofexile.com/*"]
+    }
+  ]
+}
